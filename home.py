@@ -3,10 +3,12 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np # linear algebra
+from lime import lime_image
 from bokeh.colors import color
 from sklearn.metrics import roc_curve, roc_auc_score, precision_score, recall_score, f1_score, accuracy_score, confusion_matrix
 from bokeh.plotting import figure
 import keras
+from skimage.segmentation import mark_boundaries
 from keras.layers import Dense, Dropout, Flatten, GlobalAveragePooling2D, MaxPool2D, BatchNormalization, ZeroPadding2D
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.optimizers import Adam, SGD
@@ -244,9 +246,12 @@ def result():
     printImage(Y_test,y_pred,X_test,IMG_SIZE)
     printAccuracy(historique, epochs)
 
-def pretraitementImage(uploaded_file_pred):
+def pretraitementImage(uploaded_file_pred,color_on):
     file_bytes = np.asarray(bytearray(uploaded_file_pred.read()), dtype=np.uint8)
-    opencv_image = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
+    if color_on == True:
+        opencv_image = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
+    else:
+        opencv_image = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
     # st.image(opencv_image, caption='Sunrise by the mountains')
     imageResize = cv2.resize(opencv_image, (180, 180))
 
@@ -281,7 +286,8 @@ if add_selectbox == "Détection Pneumonie":
     uploaded_file = st.file_uploader("Télécharger une image", accept_multiple_files=False,type=["png", "jpg", "jpeg"])
 
     if uploaded_file is not None:
-        imagePredction = pretraitementImage(uploaded_file)
+        imagePredction = pretraitementImage(uploaded_file,False)
+        #imagePredction_couleur = pretraitementImage(uploaded_file, True)
         predictions_Xray = predictionModel(imagePredction, model_detection_Xray)
         y_pred_Xray = np.round(predictions_Xray).reshape(1, -1)[0]
         #y_pred_Xray = 1
@@ -305,6 +311,13 @@ if add_selectbox == "Détection Pneumonie":
             else:
                 pourcentage_prediction_text = "Elevé"
             st.write("Le pourcentage de certitude est de : ", pourcentage_prediction,"% _(",pourcentage_prediction_text,")_")
+
+            #explainer = lime_image.LimeImageExplainer()
+            #explanation = explainer.explain_instance(imagePredction, model_pneumonie_1_KAGGLE.predict, top_labels=5, hide_color=0, num_samples=1000)
+            #temp, mask = explanation.get_image_and_mask(explanation.top_labels[0], positive_only=True,
+                                                        #num_features=5, hide_rest=True)
+            #st.pyplot(plt.imshow(mark_boundaries(temp / 2 + 0.5, mask)))
+
         else:
             st.write("L'image n'est pas une radio des poumons d'un enfant. (_certitude de ",(1 - int(predictions_Xray))* 100,"%_)")
 
