@@ -327,7 +327,7 @@ elif add_selectbox == "Détection Xray":
     model_detection_Xray = importerModel("model_detection_Xray.h5")
     uploaded_file = st.file_uploader("Télécharger une image", accept_multiple_files=False, type=["png", "jpg", "jpeg"])
     if uploaded_file is not None:
-        imagePredction = pretraitementImage(uploaded_file)
+        imagePredction = pretraitementImage(uploaded_file,False)
         predictions_Xray = predictionModel(imagePredction, model_detection_Xray)
 
         y_pred = np.round(predictions_Xray).reshape(1, -1)[0]
