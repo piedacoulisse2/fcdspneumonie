@@ -201,11 +201,11 @@ def printAccuracy(history,epochs):
     val_acc = history['val_accuracy']
 
     p = figure(
-        title='Training & Validation Accuracy',
+        title='Précision (acc) des jeux de train et de validation.',
         x_axis_label='Epochs',
-        y_axis_label='Accuracy')
-    p.line(epochs_array, train_acc, legend_label='Training Accuracy', line_width=2,color='green')
-    p.line(epochs_array, val_acc, legend_label='Validation Accuracy', line_width=2,color='red')
+        y_axis_label='Précision (acc)')
+    p.line(epochs_array, train_acc, legend_label='Précision du train (acc)', line_width=2,color='green')
+    p.line(epochs_array, val_acc, legend_label='Précision de la validation (acc)', line_width=2,color='red')
 
     p.circle(epochs_array, train_acc, line_width=2, color='green',fill_color="white")
     p.circle(epochs_array, val_acc, line_width=2, color='red',fill_color="white")
@@ -216,6 +216,7 @@ def printAccuracy(history,epochs):
     st.bokeh_chart(p)
 
 def printImage(y_test,y_pred,x_test,IMG_SIZE):
+    st.write('Images des erreurs de predictions du modèle')
     incorrect = np.nonzero(y_test != y_pred)[0]
     fig, ax = plt.subplots(3, 2, figsize=(15, 15))
     ax = ax.ravel()
@@ -226,7 +227,7 @@ def printImage(y_test,y_pred,x_test,IMG_SIZE):
         ax[i].set_xticks([])
         ax[i].set_yticks([])
         ax[i].imshow(x_test[c].reshape(IMG_SIZE, IMG_SIZE), cmap='gray', interpolation='none')
-        ax[i].set_title('Predicted Class: {}, Actual Class: {}'.format(y_pred[c], y_test[c]))
+        ax[i].set_title('Prédiction de Classe: {}, Véritable Classe: {}'.format(y_pred[c], y_test[c]))
         i += 1
     st.pyplot(fig)
 def importerImage():
@@ -243,8 +244,9 @@ def result():
     y_pred = np.round(predictions).reshape(1, -1)[0]
     print_results(Y_test, y_pred)
     printHistorique(historique,epochs)
-    printImage(Y_test,y_pred,X_test,IMG_SIZE)
     printAccuracy(historique, epochs)
+    printImage(Y_test,y_pred,X_test,IMG_SIZE)
+
 
 def pretraitementImage(uploaded_file_pred,color_on):
     file_bytes = np.asarray(bytearray(uploaded_file_pred.read()), dtype=np.uint8)
